@@ -160,6 +160,66 @@ if (GODOT_SIP_ENABLE_PJSIP)
       ${PJSIP_LIB_PJLIB_UTIL}
       ${PJSIP_LIB_PJLIB}
     )
+  elseif(ANDROID)
+    file(GLOB_RECURSE PJSIP_ALL_LIBS_A "${PJSIP_PATH}/*.a")
+    if (PJSIP_ALL_LIBS_A STREQUAL "")
+      message(FATAL_ERROR "No PJSIP .a files found under ${PJSIP_PATH}. Build pjproject first.")
+    endif()
+
+    function(find_pjsip_lib_a stem out_var)
+      set(found_lib "")
+      foreach(lib_path IN LISTS PJSIP_ALL_LIBS_A)
+        if (lib_path MATCHES "([/\\\\])lib${stem}[^/\\\\]*\\.a$")
+          set(found_lib "${lib_path}")
+          break()
+        endif()
+      endforeach()
+      if (found_lib STREQUAL "")
+        message(FATAL_ERROR "Could not find library matching 'lib${stem}*.a' under ${PJSIP_PATH}.")
+      endif()
+      set(${out_var} "${found_lib}" PARENT_SCOPE)
+    endfunction()
+
+    find_pjsip_lib_a("pjsua" PJSIP_LIB_PJSUA)
+    find_pjsip_lib_a("pjsip" PJSIP_LIB_PJSIP)
+    find_pjsip_lib_a("pjsip-simple" PJSIP_LIB_PJSIP_SIMPLE)
+    find_pjsip_lib_a("pjsip-ua" PJSIP_LIB_PJSIP_UA)
+    find_pjsip_lib_a("pjnath" PJSIP_LIB_PJNATH)
+    find_pjsip_lib_a("pjmedia" PJSIP_LIB_PJMEDIA)
+    find_pjsip_lib_a("pjmedia-codec" PJSIP_LIB_PJMEDIA_CODEC)
+    find_pjsip_lib_a("pjmedia-audiodev" PJSIP_LIB_PJMEDIA_AUDIODEV)
+    find_pjsip_lib_a("pjmedia-videodev" PJSIP_LIB_PJMEDIA_VIDEODEV)
+    find_pjsip_lib_a("srtp" PJSIP_LIB_SRTP)
+    find_pjsip_lib_a("speex" PJSIP_LIB_SPEEX)
+    find_pjsip_lib_a("gsmcodec" PJSIP_LIB_GSM)
+    find_pjsip_lib_a("ilbccodec" PJSIP_LIB_ILBC)
+    find_pjsip_lib_a("resample" PJSIP_LIB_RESAMPLE)
+    find_pjsip_lib_a("pjlib-util" PJSIP_LIB_PJLIB_UTIL)
+    find_pjsip_lib_a("pjlib" PJSIP_LIB_PJLIB)
+
+    target_link_libraries(godot_sip PRIVATE
+      ${PJSIP_LIB_PJSUA}
+      ${PJSIP_LIB_PJSIP}
+      ${PJSIP_LIB_PJSIP_SIMPLE}
+      ${PJSIP_LIB_PJSIP_UA}
+      ${PJSIP_LIB_PJNATH}
+      ${PJSIP_LIB_PJMEDIA}
+      ${PJSIP_LIB_PJMEDIA_CODEC}
+      ${PJSIP_LIB_PJMEDIA_AUDIODEV}
+      ${PJSIP_LIB_PJMEDIA_VIDEODEV}
+      ${PJSIP_LIB_SRTP}
+      ${PJSIP_LIB_SPEEX}
+      ${PJSIP_LIB_GSM}
+      ${PJSIP_LIB_ILBC}
+      ${PJSIP_LIB_RESAMPLE}
+      ${PJSIP_LIB_PJLIB_UTIL}
+      ${PJSIP_LIB_PJLIB}
+      log
+      OpenSLES
+      android
+      m
+      dl
+    )
   else()
     target_link_directories(godot_sip PRIVATE
       ${PJSIP_PATH}/lib

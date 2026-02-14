@@ -11,3 +11,5 @@ macos.debug.x86_64 = "res://addons/godot_sip/bin/godot_sip.macos.debug.x86_64.dy
 macos.release.x86_64 = "res://addons/godot_sip/bin/godot_sip.macos.release.x86_64.dylib"
 macos.debug.arm64 = "res://addons/godot_sip/bin/godot_sip.macos.debug.arm64.dylib"
 macos.release.arm64 = "res://addons/godot_sip/bin/godot_sip.macos.release.arm64.dylib"
+android.debug.arm64 = "res://addons/godot_sip/bin/godot_sip.android.debug.arm64.so"
+android.release.arm64 = "res://addons/godot_sip/bin/godot_sip.android.release.arm64.so"

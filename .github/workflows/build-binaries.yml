@@ -107,10 +107,11 @@ jobs:
           export CXX="ccache g++"
           export CCACHE_DIR="${HOME}/.ccache"
           ccache -M 1G
+          JOBS=2
           cd thirdparty/pjsip/pjproject
           ./configure CFLAGS="-fPIC" CXXFLAGS="-fPIC"
           make dep
-          make -j"$(nproc)"
+          make -j"${JOBS}"
           ccache -s
 
       - name: Build pjproject (macOS)
@@ -123,6 +124,7 @@ jobs:
           export CXX="ccache clang++"
           export CCACHE_DIR="${HOME}/.ccache"
           ccache -M 1G
+          JOBS=3
           cd thirdparty/pjsip/pjproject
           ./configure \
             --with-ssl="${OPENSSL_PREFIX}" \
@@ -130,7 +132,7 @@ jobs:
             CXXFLAGS="-fPIC -I${OPENSSL_PREFIX}/include" \
             LDFLAGS="-L${OPENSSL_PREFIX}/lib"
           make dep
-          make -j"$(sysctl -n hw.logicalcpu)"
+          make -j"${JOBS}"
           ccache -s
 
       - name: Checkout godot-cpp
@@ -156,6 +158,10 @@ jobs:
         shell: bash
         run: |
           export CCACHE_DIR="${HOME}/.ccache"
+          JOBS=2
+          if [[ "${RUNNER_OS}" == "macOS" ]]; then
+            JOBS=2
+          fi
           cmake -S . -B build_ci_debug \
             -DGODOT_CPP_PATH="${GITHUB_WORKSPACE}/.deps/godot-cpp" \
             -DPJSIP_PATH="${GITHUB_WORKSPACE}/thirdparty/pjsip/pjproject" \
@@ -164,7 +170,7 @@ jobs:
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_BUILD_TYPE=Debug
-          cmake --build build_ci_debug -j
+          cmake --build build_ci_debug --parallel "${JOBS}"
 
           cmake -S . -B build_ci_release \
             -DGODOT_CPP_PATH="${GITHUB_WORKSPACE}/.deps/godot-cpp" \
@@ -174,7 +180,7 @@ jobs:
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_BUILD_TYPE=Release
-          cmake --build build_ci_release -j
+          cmake --build build_ci_release --parallel "${JOBS}"
           ccache -s
 
       - name: Collect binaries
