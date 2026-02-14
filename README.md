@@ -12,6 +12,19 @@ This repository scaffolds a GDExtension that will embed SIP calling via PJSIP.
 - PJSIP built for your target platform(s).
 - CMake 3.22+ and a C++17 compiler.
 
+## Clone with submodules
+This repository uses a git submodule for `pjproject`.
+
+```sh
+git clone --recurse-submodules <repo-url>
+```
+
+If you already cloned without submodules:
+
+```sh
+git submodule update --init --recursive
+```
+
 ## Quick build (all platforms)
 1. Build `godot-cpp` for your target platform and note its path.
 2. Build PJSIP and note its root path (contains `pjlib/include`).
