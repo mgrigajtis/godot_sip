@@ -1,0 +1,70 @@
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Editor settings
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Godot editor/runtime artifacts
+.godot/
+export_presets.cfg
+*.translation
+
+# Godot import cache
+.import/
+
+# Build directories
+build/
+build_*/
+cmake-build-*/
+out/
+
+# CMake artifacts
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+Makefile
+CTestTestfile.cmake
+Testing/
+install_manifest.txt
+
+# Native binaries and objects
+*.o
+*.obj
+*.lo
+*.la
+*.a
+*.lib
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.exp
+*.pdb
+*.ilk
+*.idb
+
+# Visual Studio artifacts
+.vs/
+*.sln.docstates
+*.VC.db
+*.VC.opendb
+*.user
+*.userosscache
+*.suo
+*.ipch
+*.tlog
+*.lastbuildstate
+x64/
+Debug/
+Release/
+
+# Python cache
+__pycache__/
+*.pyc
+

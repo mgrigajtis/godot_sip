@@ -1,0 +1,3 @@
+[submodule "thirdparty/pjsip/pjproject"]
+	path = thirdparty/pjsip/pjproject
+	url = https://github.com/pjsip/pjproject.git

@@ -1,0 +1,179 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://demo/sip_demo.gd" id="1_0k1k0"]
+
+[node name="SipDemo" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_0k1k0")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="RootVBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Margin/RootVBox"]
+layout_mode = 2
+text = "Godot SIP Demo"
+horizontal_alignment = 1
+
+[node name="RegistrationStateLabel" type="Label" parent="Margin/RootVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Registration: Unregistered"
+
+[node name="CredsGrid" type="GridContainer" parent="Margin/RootVBox"]
+layout_mode = 2
+columns = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 6
+
+[node name="SipUriLabel" type="Label" parent="Margin/RootVBox/CredsGrid"]
+layout_mode = 2
+text = "SIP URI"
+
+[node name="SipUriEdit" type="LineEdit" parent="Margin/RootVBox/CredsGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "sip:1001@example.com"
+
+[node name="UsernameLabel" type="Label" parent="Margin/RootVBox/CredsGrid"]
+layout_mode = 2
+text = "Username"
+
+[node name="UsernameEdit" type="LineEdit" parent="Margin/RootVBox/CredsGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "1001"
+
+[node name="PasswordLabel" type="Label" parent="Margin/RootVBox/CredsGrid"]
+layout_mode = 2
+text = "Password"
+
+[node name="PasswordEdit" type="LineEdit" parent="Margin/RootVBox/CredsGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+secret = true
+placeholder_text = "password"
+
+[node name="RegistrarLabel" type="Label" parent="Margin/RootVBox/CredsGrid"]
+layout_mode = 2
+text = "Registrar URI"
+
+[node name="RegistrarEdit" type="LineEdit" parent="Margin/RootVBox/CredsGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "sip:example.com"
+
+[node name="RegisterButtons" type="HBoxContainer" parent="Margin/RootVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RegisterButton" type="Button" parent="Margin/RootVBox/RegisterButtons"]
+layout_mode = 2
+text = "Register"
+
+[node name="UnregisterButton" type="Button" parent="Margin/RootVBox/RegisterButtons"]
+layout_mode = 2
+text = "Unregister"
+
+[node name="CallGrid" type="GridContainer" parent="Margin/RootVBox"]
+layout_mode = 2
+columns = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 6
+
+[node name="DestinationLabel" type="Label" parent="Margin/RootVBox/CallGrid"]
+layout_mode = 2
+text = "Destination URI"
+
+[node name="DestinationEdit" type="LineEdit" parent="Margin/RootVBox/CallGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "sip:1002@example.com"
+
+[node name="CallButtons" type="HBoxContainer" parent="Margin/RootVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CallButton" type="Button" parent="Margin/RootVBox/CallButtons"]
+layout_mode = 2
+text = "Call"
+
+[node name="AnswerButton" type="Button" parent="Margin/RootVBox/CallButtons"]
+layout_mode = 2
+text = "Answer"
+
+[node name="RejectButton" type="Button" parent="Margin/RootVBox/CallButtons"]
+layout_mode = 2
+text = "Reject"
+
+[node name="HangupButton" type="Button" parent="Margin/RootVBox/CallButtons"]
+layout_mode = 2
+text = "Hang Up"
+
+[node name="AudioPanel" type="VBoxContainer" parent="Margin/RootVBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="InputRow" type="HBoxContainer" parent="Margin/RootVBox/AudioPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="InputLabel" type="Label" parent="Margin/RootVBox/AudioPanel/InputRow"]
+layout_mode = 2
+text = "Input Device"
+
+[node name="InputDevicesOption" type="OptionButton" parent="Margin/RootVBox/AudioPanel/InputRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OutputRow" type="HBoxContainer" parent="Margin/RootVBox/AudioPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="OutputLabel" type="Label" parent="Margin/RootVBox/AudioPanel/OutputRow"]
+layout_mode = 2
+text = "Output Device"
+
+[node name="OutputDevicesOption" type="OptionButton" parent="Margin/RootVBox/AudioPanel/OutputRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="RefreshDevicesButton" type="Button" parent="Margin/RootVBox/AudioPanel"]
+layout_mode = 2
+text = "Refresh Audio Devices"
+
+[node name="LogOutput" type="RichTextLabel" parent="Margin/RootVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = false
+scroll_following = true
+
+[connection signal="pressed" from="Margin/RootVBox/RegisterButtons/RegisterButton" to="." method="_on_register_pressed"]
+[connection signal="pressed" from="Margin/RootVBox/RegisterButtons/UnregisterButton" to="." method="_on_unregister_pressed"]
+[connection signal="pressed" from="Margin/RootVBox/CallButtons/CallButton" to="." method="_on_call_pressed"]
+[connection signal="pressed" from="Margin/RootVBox/CallButtons/AnswerButton" to="." method="_on_answer_pressed"]
+[connection signal="pressed" from="Margin/RootVBox/CallButtons/RejectButton" to="." method="_on_reject_pressed"]
+[connection signal="pressed" from="Margin/RootVBox/CallButtons/HangupButton" to="." method="_on_hangup_pressed"]
+[connection signal="pressed" from="Margin/RootVBox/AudioPanel/RefreshDevicesButton" to="." method="_on_refresh_devices_pressed"]
+[connection signal="item_selected" from="Margin/RootVBox/AudioPanel/InputRow/InputDevicesOption" to="." method="_on_input_devices_option_item_selected"]
+[connection signal="item_selected" from="Margin/RootVBox/AudioPanel/OutputRow/OutputDevicesOption" to="." method="_on_output_devices_option_item_selected"]

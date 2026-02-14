@@ -1,0 +1,13 @@
+[configuration]
+entry_symbol = "godot_sip_library_init"
+compatibility_minimum = "4.1"
+
+[libraries]
+windows.debug.x86_64 = "res://addons/godot_sip/bin/godot_sip.windows.debug.x86_64.dll"
+windows.release.x86_64 = "res://addons/godot_sip/bin/godot_sip.windows.release.x86_64.dll"
+linux.debug.x86_64 = "res://addons/godot_sip/bin/godot_sip.linux.debug.x86_64.so"
+linux.release.x86_64 = "res://addons/godot_sip/bin/godot_sip.linux.release.x86_64.so"
+macos.debug.x86_64 = "res://addons/godot_sip/bin/godot_sip.macos.debug.x86_64.dylib"
+macos.release.x86_64 = "res://addons/godot_sip/bin/godot_sip.macos.release.x86_64.dylib"
+macos.debug.arm64 = "res://addons/godot_sip/bin/godot_sip.macos.debug.arm64.dylib"
+macos.release.arm64 = "res://addons/godot_sip/bin/godot_sip.macos.release.arm64.dylib"
