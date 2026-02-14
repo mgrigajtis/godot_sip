@@ -23,9 +23,6 @@ jobs:
           - os: ubuntu-24.04
             platform: linux
             arch: x86_64
-          - os: macos-13
-            platform: macos
-            arch: x86_64
           - os: macos-14
             platform: macos
             arch: arm64
@@ -40,6 +37,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
+      - name: Setup MSBuild
+        if: runner.os == 'Windows'
+        uses: microsoft/setup-msbuild@v2
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
@@ -111,7 +112,7 @@ jobs:
       - name: Checkout godot-cpp
         shell: bash
         run: |
-          git clone --depth 1 --branch 4.3-stable https://github.com/godotengine/godot-cpp.git .deps/godot-cpp
+          git clone --depth 1 https://github.com/godotengine/godot-cpp.git .deps/godot-cpp
           git -C .deps/godot-cpp submodule update --init --recursive
 
       - name: Configure and build extension (Windows)
@@ -178,6 +179,7 @@ jobs:
       - name: Assemble addon package
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p package/addons/godot_sip/bin
           find downloaded -type f \
             \( -name "godot_sip.*.dll" -o -name "godot_sip.*.so" -o -name "godot_sip.*.dylib" \) \
@@ -185,17 +187,22 @@ jobs:
           cp godot_sip.gdextension package/addons/godot_sip/godot_sip.gdextension
           cp README.md package/addons/godot_sip/README.md
           cp LICENSE package/addons/godot_sip/LICENSE
-          (cd package && zip -r ../godot_sip-addon-${GITHUB_REF_NAME}.zip addons)
+          PKG_NAME="godot_sip-addon-${GITHUB_SHA:0:8}.zip"
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            PKG_NAME="godot_sip-addon-${GITHUB_REF_NAME}.zip"
+          fi
+          (cd package && zip -r "../${PKG_NAME}" addons)
+          echo "PKG_NAME=${PKG_NAME}" >> "${GITHUB_ENV}"
 
       - name: Upload packaged addon artifact
         uses: actions/upload-artifact@v4
         with:
           name: godot_sip-addon-package
-          path: godot_sip-addon-${{ github.ref_name }}.zip
+          path: ${{ env.PKG_NAME }}
           if-no-files-found: error
 
       - name: Publish release asset (tags only)
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: godot_sip-addon-${{ github.ref_name }}.zip
+          files: ${{ env.PKG_NAME }}
