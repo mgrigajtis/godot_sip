@@ -49,6 +49,7 @@ jobs:
           sudo apt-get install -y \
             build-essential \
             cmake \
+            ccache \
             pkg-config \
             autoconf \
             automake \
@@ -60,7 +61,17 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew update
-          brew install automake autoconf libtool pkg-config openssl@3
+          brew install automake autoconf libtool pkg-config openssl@3 ccache
+
+      - name: Cache ccache
+        if: runner.os != 'Windows'
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: ccache-${{ runner.os }}-${{ matrix.arch }}-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            ccache-${{ runner.os }}-${{ matrix.arch }}-${{ github.ref_name }}-
+            ccache-${{ runner.os }}-${{ matrix.arch }}-
 
       - name: Configure pjproject TLS (Windows)
         if: runner.os == 'Windows'
@@ -92,22 +103,35 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: |
+          export CC="ccache gcc"
+          export CXX="ccache g++"
+          export CCACHE_DIR="${HOME}/.ccache"
+          ccache -M 1G
           cd thirdparty/pjsip/pjproject
           ./configure CFLAGS="-fPIC" CXXFLAGS="-fPIC"
           make dep
           make -j"$(nproc)"
+          ccache -s
 
       - name: Build pjproject (macOS)
         if: runner.os == 'macOS'
         shell: bash
         run: |
           OPENSSL_PREFIX="$(brew --prefix openssl@3)"
-          export LDFLAGS="-L${OPENSSL_PREFIX}/lib"
-          export CPPFLAGS="-I${OPENSSL_PREFIX}/include"
+          export PKG_CONFIG_PATH="${OPENSSL_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH:-}"
+          export CC="ccache clang"
+          export CXX="ccache clang++"
+          export CCACHE_DIR="${HOME}/.ccache"
+          ccache -M 1G
           cd thirdparty/pjsip/pjproject
-          ./configure CFLAGS="-fPIC" CXXFLAGS="-fPIC"
+          ./configure \
+            --with-ssl="${OPENSSL_PREFIX}" \
+            CFLAGS="-fPIC -I${OPENSSL_PREFIX}/include" \
+            CXXFLAGS="-fPIC -I${OPENSSL_PREFIX}/include" \
+            LDFLAGS="-L${OPENSSL_PREFIX}/lib"
           make dep
           make -j"$(sysctl -n hw.logicalcpu)"
+          ccache -s
 
       - name: Checkout godot-cpp
         shell: bash
@@ -131,11 +155,14 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: |
+          export CCACHE_DIR="${HOME}/.ccache"
           cmake -S . -B build_ci_debug \
             -DGODOT_CPP_PATH="${GITHUB_WORKSPACE}/.deps/godot-cpp" \
             -DPJSIP_PATH="${GITHUB_WORKSPACE}/thirdparty/pjsip/pjproject" \
             -DGODOT_SIP_PLATFORM="${{ matrix.platform }}" \
             -DGODOT_SIP_ARCH="${{ matrix.arch }}" \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_BUILD_TYPE=Debug
           cmake --build build_ci_debug -j
 
@@ -144,16 +171,38 @@ jobs:
             -DPJSIP_PATH="${GITHUB_WORKSPACE}/thirdparty/pjsip/pjproject" \
             -DGODOT_SIP_PLATFORM="${{ matrix.platform }}" \
             -DGODOT_SIP_ARCH="${{ matrix.arch }}" \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_BUILD_TYPE=Release
           cmake --build build_ci_release -j
+          ccache -s
 
       - name: Collect binaries
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p artifacts/bin
-          find build_ci build_ci_debug build_ci_release -type f \
+          SEARCH_DIRS=()
+          for d in build_ci build_ci_debug build_ci_release; do
+            if [[ -d "$d" ]]; then
+              SEARCH_DIRS+=("$d")
+            fi
+          done
+
+          if [[ ${#SEARCH_DIRS[@]} -eq 0 ]]; then
+            echo "No build directories found."
+            exit 1
+          fi
+
+          find "${SEARCH_DIRS[@]}" -type f \
             \( -name "godot_sip.*.dll" -o -name "godot_sip.*.so" -o -name "godot_sip.*.dylib" \) \
             -exec cp {} artifacts/bin/ \;
+
+          if [[ -z "$(ls -A artifacts/bin)" ]]; then
+            echo "No binaries collected."
+            exit 1
+          fi
+
           ls -lah artifacts/bin
 
       - name: Upload platform artifacts
