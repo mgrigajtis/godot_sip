@@ -9,6 +9,10 @@ on:
       - "v*"
   workflow_dispatch:
 
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   build:
     name: Build (${{ matrix.platform }}-${{ matrix.arch }})
@@ -220,10 +224,151 @@ jobs:
           path: artifacts/bin/*
           if-no-files-found: error
 
+  build-android:
+    name: Build (android-arm64)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Setup Java (for Android SDK tools)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install build dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            ninja-build \
+            autoconf \
+            automake \
+            libtool \
+            pkg-config \
+            ccache \
+            zip
+
+      - name: Install Android NDK
+        shell: bash
+        run: |
+          sdkmanager --install "ndk;27.2.12479018"
+          echo "ANDROID_NDK_ROOT=${ANDROID_SDK_ROOT}/ndk/27.2.12479018" >> "${GITHUB_ENV}"
+
+      - name: Cache ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: ccache-android-arm64-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            ccache-android-arm64-${{ github.ref_name }}-
+            ccache-android-arm64-
+
+      - name: Configure pjproject for Android
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp thirdparty/pjsip/pjproject/pjlib/include/pj/config_site_sample.h thirdparty/pjsip/pjproject/pjlib/include/pj/config_site.h
+          {
+            echo ""
+            echo "#define PJ_IS_LITTLE_ENDIAN 1"
+            echo "#define PJ_IS_BIG_ENDIAN 0"
+          } >> thirdparty/pjsip/pjproject/pjlib/include/pj/config_site.h
+          cd thirdparty/pjsip/pjproject
+          export ANDROID_NDK_ROOT="${ANDROID_NDK_ROOT}"
+          export APP_PLATFORM=android-24
+          export TARGET_ABI=arm64-v8a
+          export CC="ccache clang"
+          export CXX="ccache clang++"
+          export CCACHE_DIR="${HOME}/.ccache"
+          ccache -M 1G
+          chmod +x ./configure-android
+          ./configure-android --use-ndk-cflags
+
+      - name: Build pjproject for Android
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd thirdparty/pjsip/pjproject
+          make dep
+          make -j"$(nproc)"
+          ccache -s
+
+      - name: Checkout godot-cpp
+        shell: bash
+        run: |
+          git clone --depth 1 https://github.com/godotengine/godot-cpp.git .deps/godot-cpp
+          git -C .deps/godot-cpp submodule update --init --recursive
+
+      - name: Configure and build extension (Android Debug/Release)
+        shell: bash
+        run: |
+          set -euo pipefail
+          export CCACHE_DIR="${HOME}/.ccache"
+
+          cmake -S . -B build_android_debug -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK_ROOT}/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI=arm64-v8a \
+            -DANDROID_PLATFORM=24 \
+            -DANDROID_STL=c++_static \
+            -DGODOT_CPP_PATH="${GITHUB_WORKSPACE}/.deps/godot-cpp" \
+            -DPJSIP_PATH="${GITHUB_WORKSPACE}/thirdparty/pjsip/pjproject" \
+            -DGODOT_SIP_PLATFORM=android \
+            -DGODOT_SIP_ARCH=arm64 \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build_android_debug -j
+
+          cmake -S . -B build_android_release -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK_ROOT}/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI=arm64-v8a \
+            -DANDROID_PLATFORM=24 \
+            -DANDROID_STL=c++_static \
+            -DGODOT_CPP_PATH="${GITHUB_WORKSPACE}/.deps/godot-cpp" \
+            -DPJSIP_PATH="${GITHUB_WORKSPACE}/thirdparty/pjsip/pjproject" \
+            -DGODOT_SIP_PLATFORM=android \
+            -DGODOT_SIP_ARCH=arm64 \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build build_android_release -j
+          ccache -s
+
+      - name: Collect Android binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/bin
+          find build_android_debug build_android_release -type f -name "godot_sip.android.*.arm64.so" -exec cp {} artifacts/bin/ \;
+          ls -lah artifacts/bin
+
+      - name: Upload Android binaries artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: godot-sip-android-arm64
+          path: artifacts/bin/*
+          if-no-files-found: error
+
   package-addon:
     name: Package Addon
     runs-on: ubuntu-24.04
-    needs: build
+    needs: [build, build-android]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -257,6 +402,29 @@ jobs:
           name: godot_sip-addon-package
           path: ${{ env.PKG_NAME }}
           if-no-files-found: error
+
+      - name: Delete intermediate platform artifacts
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          RUN_ID="${{ github.run_id }}"
+          REPO="${{ github.repository }}"
+
+          while IFS=$'\t' read -r ART_ID ART_NAME; do
+            if [[ "${ART_NAME}" == "godot_sip-addon-package" ]]; then
+              continue
+            fi
+            if [[ "${ART_NAME}" == godot-sip-* ]]; then
+              echo "Deleting ${ART_NAME} (${ART_ID})"
+              gh api -X DELETE "repos/${REPO}/actions/artifacts/${ART_ID}"
+            fi
+          done < <(
+            gh api "repos/${REPO}/actions/runs/${RUN_ID}/artifacts?per_page=100" --paginate \
+              --jq '.artifacts[] | [.id, .name] | @tsv'
+          )
 
       - name: Publish release asset (tags only)
         if: startsWith(github.ref, 'refs/tags/')
