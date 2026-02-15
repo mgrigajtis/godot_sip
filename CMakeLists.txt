@@ -222,7 +222,7 @@ if (GODOT_SIP_ENABLE_PJSIP)
     find_pjsip_lib_a("ilbccodec" PJSIP_LIB_ILBC)
     find_pjsip_lib_a("resample" PJSIP_LIB_RESAMPLE)
     find_pjsip_lib_a("pjlib-util" PJSIP_LIB_PJLIB_UTIL)
-    find_pjsip_lib_a("pjlib" PJSIP_LIB_PJLIB)
+    find_pjsip_lib_a("pj" PJSIP_LIB_PJLIB)
 
     target_link_libraries(godot_sip PRIVATE
       ${PJSIP_LIB_PJSUA}
@@ -299,7 +299,7 @@ if (GODOT_SIP_ENABLE_PJSIP)
     find_pjsip_lib_unix("ilbccodec" PJSIP_LIB_ILBC)
     find_pjsip_lib_unix("resample" PJSIP_LIB_RESAMPLE)
     find_pjsip_lib_unix("pjlib-util" PJSIP_LIB_PJLIB_UTIL)
-    find_pjsip_lib_unix("pjlib" PJSIP_LIB_PJLIB)
+    find_pjsip_lib_unix("pj" PJSIP_LIB_PJLIB)
 
     target_link_libraries(godot_sip PRIVATE
       ${PJSIP_LIB_PJSUA}
