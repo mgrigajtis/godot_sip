@@ -105,6 +105,15 @@ if (GODOT_SIP_ENABLE_PJSIP)
     ${PJSIP_PATH}/third_party/opus/include
   )
 
+  if (GODOT_SIP_ARCH MATCHES "arm64|aarch64|arm" OR CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64|arm")
+    # pj/config.h validates endianness for ARM before including config_site.h.
+    # Define it at compile time for ARM targets used by this plugin.
+    target_compile_definitions(godot_sip PRIVATE
+      PJ_IS_LITTLE_ENDIAN=1
+      PJ_IS_BIG_ENDIAN=0
+    )
+  endif()
+
   if (WIN32)
     file(GLOB_RECURSE PJSIP_ALL_LIBS "${PJSIP_PATH}/*.lib")
     if (PJSIP_ALL_LIBS STREQUAL "")
