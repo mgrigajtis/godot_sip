@@ -344,7 +344,13 @@ if (GODOT_SIP_ENABLE_PJSIP)
       OpenSSL::Crypto
     )
   elseif(ANDROID)
-    target_link_libraries(godot_sip PRIVATE dl m)
+    target_link_libraries(godot_sip PRIVATE
+      mediandk
+      android
+      OpenSLES
+      dl
+      m
+    )
   else()
     target_link_libraries(godot_sip PRIVATE pthread dl m)
   endif()
