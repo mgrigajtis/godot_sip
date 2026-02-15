@@ -389,6 +389,9 @@ jobs:
           cp godot_sip.gdextension package/addons/godot_sip/godot_sip.gdextension
           cp README.md package/addons/godot_sip/README.md
           cp LICENSE package/addons/godot_sip/LICENSE
+          if [[ -d demo ]]; then
+            cp -R demo package/addons/godot_sip/demo
+          fi
           PKG_NAME="godot_sip-addon-${GITHUB_SHA:0:8}.zip"
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
             PKG_NAME="godot_sip-addon-${GITHUB_REF_NAME}.zip"
