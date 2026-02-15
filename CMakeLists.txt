@@ -153,6 +153,7 @@ if (GODOT_SIP_ENABLE_PJSIP)
     find_pjsip_lib("libgsmcodec-${GODOT_SIP_ARCH}" PJSIP_LIB_GSM)
     find_pjsip_lib("libilbccodec-${GODOT_SIP_ARCH}" PJSIP_LIB_ILBC)
     find_pjsip_lib("libresample-${GODOT_SIP_ARCH}" PJSIP_LIB_RESAMPLE)
+    find_pjsip_lib("libwebrtc-${GODOT_SIP_ARCH}" PJSIP_LIB_WEBRTC)
     find_pjsip_lib("pjlib-util-${GODOT_SIP_ARCH}" PJSIP_LIB_PJLIB_UTIL)
     find_pjsip_lib("pjlib-${GODOT_SIP_ARCH}" PJSIP_LIB_PJLIB)
 
@@ -171,6 +172,7 @@ if (GODOT_SIP_ENABLE_PJSIP)
       ${PJSIP_LIB_GSM}
       ${PJSIP_LIB_ILBC}
       ${PJSIP_LIB_RESAMPLE}
+      ${PJSIP_LIB_WEBRTC}
       ${PJSIP_LIB_PJLIB_UTIL}
       ${PJSIP_LIB_PJLIB}
     )
@@ -221,6 +223,7 @@ if (GODOT_SIP_ENABLE_PJSIP)
     find_pjsip_lib_a("gsmcodec" PJSIP_LIB_GSM)
     find_pjsip_lib_a("ilbccodec" PJSIP_LIB_ILBC)
     find_pjsip_lib_a("resample" PJSIP_LIB_RESAMPLE)
+    find_pjsip_lib_a("webrtc" PJSIP_LIB_WEBRTC)
     find_pjsip_lib_a("pjlib-util" PJSIP_LIB_PJLIB_UTIL)
     find_pjsip_lib_a("pj" PJSIP_LIB_PJLIB)
 
@@ -239,6 +242,7 @@ if (GODOT_SIP_ENABLE_PJSIP)
       ${PJSIP_LIB_GSM}
       ${PJSIP_LIB_ILBC}
       ${PJSIP_LIB_RESAMPLE}
+      ${PJSIP_LIB_WEBRTC}
       ${PJSIP_LIB_PJLIB_UTIL}
       ${PJSIP_LIB_PJLIB}
       log
@@ -298,6 +302,7 @@ if (GODOT_SIP_ENABLE_PJSIP)
     find_pjsip_lib_unix("gsmcodec" PJSIP_LIB_GSM)
     find_pjsip_lib_unix("ilbccodec" PJSIP_LIB_ILBC)
     find_pjsip_lib_unix("resample" PJSIP_LIB_RESAMPLE)
+    find_pjsip_lib_unix("webrtc" PJSIP_LIB_WEBRTC)
     find_pjsip_lib_unix("pjlib-util" PJSIP_LIB_PJLIB_UTIL)
     find_pjsip_lib_unix("pj" PJSIP_LIB_PJLIB)
 
@@ -316,6 +321,7 @@ if (GODOT_SIP_ENABLE_PJSIP)
       ${PJSIP_LIB_GSM}
       ${PJSIP_LIB_ILBC}
       ${PJSIP_LIB_RESAMPLE}
+      ${PJSIP_LIB_WEBRTC}
       ${PJSIP_LIB_PJLIB_UTIL}
       ${PJSIP_LIB_PJLIB}
     )
