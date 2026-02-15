@@ -68,6 +68,11 @@ jobs:
         run: |
           set -euo pipefail
           cp thirdparty/pjsip/pjproject/pjlib/include/pj/config_site_sample.h thirdparty/pjsip/pjproject/pjlib/include/pj/config_site.h
+          {
+            echo ""
+            echo "#define PJ_IS_LITTLE_ENDIAN 1"
+            echo "#define PJ_IS_BIG_ENDIAN 0"
+          } >> thirdparty/pjsip/pjproject/pjlib/include/pj/config_site.h
           cd thirdparty/pjsip/pjproject
           export ANDROID_NDK_ROOT="${ANDROID_NDK_ROOT}"
           export APP_PLATFORM=android-24

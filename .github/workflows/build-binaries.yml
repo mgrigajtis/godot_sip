@@ -91,6 +91,8 @@ jobs:
             echo ""
             echo "#define PJ_HAS_SSL_SOCK 1"
             echo "#define PJ_SSL_SOCK_IMP PJ_SSL_SOCK_IMP_OPENSSL"
+            echo "#define PJ_IS_LITTLE_ENDIAN 1"
+            echo "#define PJ_IS_BIG_ENDIAN 0"
           } >> thirdparty/pjsip/pjproject/pjlib/include/pj/config_site.h
 
       - name: Build pjproject (Windows)

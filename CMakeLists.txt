@@ -221,18 +221,63 @@ if (GODOT_SIP_ENABLE_PJSIP)
       dl
     )
   else()
-    target_link_directories(godot_sip PRIVATE
-      ${PJSIP_PATH}/lib
+    file(GLOB_RECURSE PJSIP_ALL_LIBS_UNIX
+      "${PJSIP_PATH}/*.a"
+      "${PJSIP_PATH}/*.so"
+      "${PJSIP_PATH}/*.dylib"
     )
+    if (PJSIP_ALL_LIBS_UNIX STREQUAL "")
+      message(FATAL_ERROR "No PJSIP libraries (.a/.so/.dylib) found under ${PJSIP_PATH}. Build pjproject first.")
+    endif()
+
+    function(find_pjsip_lib_unix stem out_var)
+      set(found_lib "")
+      foreach(lib_path IN LISTS PJSIP_ALL_LIBS_UNIX)
+        if (lib_path MATCHES "([/\\\\])lib${stem}[^/\\\\]*\\.(a|so|dylib)$")
+          set(found_lib "${lib_path}")
+          break()
+        endif()
+      endforeach()
+      if (found_lib STREQUAL "")
+        message(FATAL_ERROR "Could not find library matching 'lib${stem}*.(a|so|dylib)' under ${PJSIP_PATH}.")
+      endif()
+      set(${out_var} "${found_lib}" PARENT_SCOPE)
+    endfunction()
+
+    find_pjsip_lib_unix("pjsua" PJSIP_LIB_PJSUA)
+    find_pjsip_lib_unix("pjsip" PJSIP_LIB_PJSIP)
+    find_pjsip_lib_unix("pjsip-simple" PJSIP_LIB_PJSIP_SIMPLE)
+    find_pjsip_lib_unix("pjsip-ua" PJSIP_LIB_PJSIP_UA)
+    find_pjsip_lib_unix("pjnath" PJSIP_LIB_PJNATH)
+    find_pjsip_lib_unix("pjmedia" PJSIP_LIB_PJMEDIA)
+    find_pjsip_lib_unix("pjmedia-codec" PJSIP_LIB_PJMEDIA_CODEC)
+    find_pjsip_lib_unix("pjmedia-audiodev" PJSIP_LIB_PJMEDIA_AUDIODEV)
+    find_pjsip_lib_unix("pjmedia-videodev" PJSIP_LIB_PJMEDIA_VIDEODEV)
+    find_pjsip_lib_unix("srtp" PJSIP_LIB_SRTP)
+    find_pjsip_lib_unix("speex" PJSIP_LIB_SPEEX)
+    find_pjsip_lib_unix("gsmcodec" PJSIP_LIB_GSM)
+    find_pjsip_lib_unix("ilbccodec" PJSIP_LIB_ILBC)
+    find_pjsip_lib_unix("resample" PJSIP_LIB_RESAMPLE)
+    find_pjsip_lib_unix("pjlib-util" PJSIP_LIB_PJLIB_UTIL)
+    find_pjsip_lib_unix("pjlib" PJSIP_LIB_PJLIB)
 
     target_link_libraries(godot_sip PRIVATE
-      pjsua
-      pjsip
-      pjsip-simple
-      pjsip-ua
-      pjnath
-      pjlib-util
-      pjlib
+      ${PJSIP_LIB_PJSUA}
+      ${PJSIP_LIB_PJSIP}
+      ${PJSIP_LIB_PJSIP_SIMPLE}
+      ${PJSIP_LIB_PJSIP_UA}
+      ${PJSIP_LIB_PJNATH}
+      ${PJSIP_LIB_PJMEDIA}
+      ${PJSIP_LIB_PJMEDIA_CODEC}
+      ${PJSIP_LIB_PJMEDIA_AUDIODEV}
+      ${PJSIP_LIB_PJMEDIA_VIDEODEV}
+      ${PJSIP_LIB_SRTP}
+      ${PJSIP_LIB_SPEEX}
+      ${PJSIP_LIB_GSM}
+      ${PJSIP_LIB_ILBC}
+      ${PJSIP_LIB_RESAMPLE}
+      ${PJSIP_LIB_PJLIB_UTIL}
+      ${PJSIP_LIB_PJLIB}
     )
   endif()
 
