@@ -7,6 +7,15 @@ This repository scaffolds a GDExtension that will embed SIP calling via PJSIP.
 - PJSIP (`pjsua`) integration is wired for init, registration, calls, and audio device selection.
 - Godot-facing API is active (`SIPClient`, `SIPCall`) with async signals from native callbacks.
 
+## License
+This repository distributes binaries that link against `pjproject` (`PJSIP`).
+
+- Distributed addon binaries and releases are licensed under `GPL-2.0-or-later`.
+- The top-level `LICENSE` file contains the GNU GPL v2 text.
+- `pjproject` is included as a submodule in `thirdparty/pjsip/pjproject` and keeps its own upstream licensing and notices.
+
+If you need non-GPL distribution terms, use an appropriate commercial licensing path for `pjproject` and adjust this repository's distribution model accordingly.
+
 ## Build prerequisites
 - Godot 4.x headers via `godot-cpp`.
 - PJSIP built for your target platform(s).
