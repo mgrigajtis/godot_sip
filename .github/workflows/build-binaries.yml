@@ -392,19 +392,22 @@ jobs:
           if [[ -d demo ]]; then
             cp -R demo package/addons/godot_sip/demo
           fi
-          PKG_NAME="godot_sip-addon-${GITHUB_SHA:0:8}.zip"
-          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            PKG_NAME="godot_sip-addon-${GITHUB_REF_NAME}.zip"
-          fi
-          (cd package && zip -r "../${PKG_NAME}" addons)
-          echo "PKG_NAME=${PKG_NAME}" >> "${GITHUB_ENV}"
 
       - name: Upload packaged addon artifact
         uses: actions/upload-artifact@v4
         with:
           name: godot_sip-addon-package
-          path: ${{ env.PKG_NAME }}
+          path: package/addons/**
           if-no-files-found: error
+
+      - name: Create release zip (tags only)
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: |
+          set -euo pipefail
+          PKG_NAME="godot_sip-addon-${GITHUB_REF_NAME}.zip"
+          (cd package && zip -r "../${PKG_NAME}" addons)
+          echo "PKG_NAME=${PKG_NAME}" >> "${GITHUB_ENV}"
 
       - name: Delete intermediate platform artifacts
         if: always()
