@@ -262,6 +262,8 @@ jobs:
             libtool \
             pkg-config \
             ccache \
+            curl \
+            perl \
             zip
 
       - name: Install Android NDK
@@ -269,6 +271,23 @@ jobs:
         run: |
           sdkmanager --install "ndk;27.2.12479018"
           echo "ANDROID_NDK_ROOT=${ANDROID_SDK_ROOT}/ndk/27.2.12479018" >> "${GITHUB_ENV}"
+
+      - name: Build OpenSSL (Android)
+        shell: bash
+        run: |
+          set -euo pipefail
+          OPENSSL_VERSION="3.0.13"
+          OPENSSL_PREFIX="${GITHUB_WORKSPACE}/.deps/openssl-android-arm64"
+          mkdir -p "${GITHUB_WORKSPACE}/.deps"
+          curl -L "https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz" -o /tmp/openssl.tar.gz
+          tar -xzf /tmp/openssl.tar.gz -C /tmp
+          cd "/tmp/openssl-${OPENSSL_VERSION}"
+          export ANDROID_NDK_ROOT="${ANDROID_NDK_ROOT}"
+          export PATH="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/bin:${PATH}"
+          ./Configure android-arm64 -D__ANDROID_API__=24 no-shared no-tests --prefix="${OPENSSL_PREFIX}"
+          make -j"$(nproc)"
+          make install_sw
+          echo "OPENSSL_PREFIX=${OPENSSL_PREFIX}" >> "${GITHUB_ENV}"
 
       - name: Cache ccache
         uses: actions/cache@v4
@@ -286,6 +305,8 @@ jobs:
           cp thirdparty/pjsip/pjproject/pjlib/include/pj/config_site_sample.h thirdparty/pjsip/pjproject/pjlib/include/pj/config_site.h
           {
             echo ""
+            echo "#define PJ_HAS_SSL_SOCK 1"
+            echo "#define PJ_SSL_SOCK_IMP PJ_SSL_SOCK_IMP_OPENSSL"
             echo "#define PJ_IS_LITTLE_ENDIAN 1"
             echo "#define PJ_IS_BIG_ENDIAN 0"
           } >> thirdparty/pjsip/pjproject/pjlib/include/pj/config_site.h
@@ -298,7 +319,7 @@ jobs:
           export CCACHE_DIR="${HOME}/.ccache"
           ccache -M 1G
           chmod +x ./configure-android
-          ./configure-android --use-ndk-cflags
+          ./configure-android --use-ndk-cflags --with-ssl="${OPENSSL_PREFIX}"
 
       - name: Build pjproject for Android
         shell: bash
@@ -330,6 +351,11 @@ jobs:
             -DPJSIP_PATH="${GITHUB_WORKSPACE}/thirdparty/pjsip/pjproject" \
             -DGODOT_SIP_PLATFORM=android \
             -DGODOT_SIP_ARCH=arm64 \
+            -DOPENSSL_ROOT_DIR="${OPENSSL_PREFIX}" \
+            -DOPENSSL_USE_STATIC_LIBS=TRUE \
+            -DOPENSSL_INCLUDE_DIR="${OPENSSL_PREFIX}/include" \
+            -DOPENSSL_SSL_LIBRARY="${OPENSSL_PREFIX}/lib/libssl.a" \
+            -DOPENSSL_CRYPTO_LIBRARY="${OPENSSL_PREFIX}/lib/libcrypto.a" \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_BUILD_TYPE=Debug
@@ -344,6 +370,11 @@ jobs:
             -DPJSIP_PATH="${GITHUB_WORKSPACE}/thirdparty/pjsip/pjproject" \
             -DGODOT_SIP_PLATFORM=android \
             -DGODOT_SIP_ARCH=arm64 \
+            -DOPENSSL_ROOT_DIR="${OPENSSL_PREFIX}" \
+            -DOPENSSL_USE_STATIC_LIBS=TRUE \
+            -DOPENSSL_INCLUDE_DIR="${OPENSSL_PREFIX}/include" \
+            -DOPENSSL_SSL_LIBRARY="${OPENSSL_PREFIX}/lib/libssl.a" \
+            -DOPENSSL_CRYPTO_LIBRARY="${OPENSSL_PREFIX}/lib/libcrypto.a" \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_BUILD_TYPE=Release
