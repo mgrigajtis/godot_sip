@@ -317,6 +317,10 @@ jobs:
           export CC="ccache clang"
           export CXX="ccache clang++"
           export CCACHE_DIR="${HOME}/.ccache"
+          export CFLAGS="-I${OPENSSL_PREFIX}/include"
+          export CXXFLAGS="-I${OPENSSL_PREFIX}/include"
+          export LDFLAGS="-L${OPENSSL_PREFIX}/lib"
+          export LIBS="-lssl -lcrypto"
           ccache -M 1G
           chmod +x ./configure-android
           ./configure-android --use-ndk-cflags --with-ssl="${OPENSSL_PREFIX}"

@@ -344,10 +344,13 @@ if (GODOT_SIP_ENABLE_PJSIP)
       OpenSSL::Crypto
     )
   elseif(ANDROID)
+    find_package(OpenSSL REQUIRED)
     target_link_libraries(godot_sip PRIVATE
       mediandk
       android
       OpenSLES
+      OpenSSL::SSL
+      OpenSSL::Crypto
       dl
       m
     )
