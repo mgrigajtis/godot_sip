@@ -13,6 +13,9 @@ permissions:
   contents: write
   actions: write
 
+env:
+  GODOT_CPP_REF: 4.5
+
 jobs:
   build:
     name: Build (${{ matrix.platform }}-${{ matrix.arch }})
@@ -144,7 +147,7 @@ jobs:
       - name: Checkout godot-cpp
         shell: bash
         run: |
-          git clone --depth 1 https://github.com/godotengine/godot-cpp.git .deps/godot-cpp
+          git clone --depth 1 --branch "${GODOT_CPP_REF}" https://github.com/godotengine/godot-cpp.git .deps/godot-cpp
           git -C .deps/godot-cpp submodule update --init --recursive
 
       - name: Configure and build extension (Windows)
@@ -337,7 +340,7 @@ jobs:
       - name: Checkout godot-cpp
         shell: bash
         run: |
-          git clone --depth 1 https://github.com/godotengine/godot-cpp.git .deps/godot-cpp
+          git clone --depth 1 --branch "${GODOT_CPP_REF}" https://github.com/godotengine/godot-cpp.git .deps/godot-cpp
           git -C .deps/godot-cpp submodule update --init --recursive
 
       - name: Configure and build extension (Android Debug/Release)
