@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="Script" path="res://demo/sip_demo.gd" id="1_0k1k0"]
+[ext_resource type="Script" path="sip_demo.gd" id="1_0k1k0"]
 
 [node name="SipDemo" type="Control"]
 layout_mode = 3

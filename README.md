@@ -71,7 +71,7 @@ Copy the resulting library to your Godot project at `addons/godot_sip/bin/` and 
   - `call_state_changed(call, state)` signal
 
 ## Demo Scene
-- Open `demo/sip_demo.tscn` in Godot.
+- Open `addons/godot_sip/demo/sip_demo.tscn` in Godot.
 - Fill account fields, then click `Register`.
 - Enter destination URI and click `Call`.
 - Use `Answer`, `Reject`, `Hang Up` for active/incoming calls.
