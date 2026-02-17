@@ -432,7 +432,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: godot_sip-addon-package
-          path: package/addons/**
+          path: package/**
           if-no-files-found: error
 
       - name: Create release zip (tags only)
