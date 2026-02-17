@@ -52,7 +52,7 @@ The build outputs to `build/bin/` with Godot-style names like:
 - `godot_sip.linux.release.x86_64.so`
 - `godot_sip.macos.release.arm64.dylib`
 
-Copy the resulting library to your Godot project `bin/` folder and add `godot_sip.gdextension` to the project root.
+Copy the resulting library to your Godot project at `addons/godot_sip/bin/` and keep the extension manifest at `addons/godot_sip/godot_sip.gdextension`.
 
 ## Godot API
 - `SIPClient`

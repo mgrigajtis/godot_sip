@@ -421,7 +421,7 @@ jobs:
           find downloaded -type f \
             \( -name "godot_sip.*.dll" -o -name "godot_sip.*.so" -o -name "godot_sip.*.dylib" \) \
             -exec cp {} package/addons/godot_sip/bin/ \;
-          cp godot_sip.gdextension package/addons/godot_sip/godot_sip.gdextension
+          cp addons/godot_sip/godot_sip.gdextension package/addons/godot_sip/godot_sip.gdextension
           cp README.md package/addons/godot_sip/README.md
           cp LICENSE package/addons/godot_sip/LICENSE
           if [[ -d demo ]]; then
